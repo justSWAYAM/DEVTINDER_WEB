@@ -11,21 +11,21 @@ const Profile = () => {
   const navigate = useNavigate();
   const userData = useSelector((store) => store.user);
 
-  const fetchUser  = async () => {
-    if(userData) return;
-    try{
-      const res = await axios.get(BASE_URL + "/profile/view" , {
+  const fetchUser = async () => {
+    if(!userData) return;
+    try {
+      const res = await axios.get(BASE_URL + "/profile/view", {
         withCredentials: true,
       });
       dispatch(addUser(res.data)); 
-    }
-    catch(err){
-      if(err.status == 401) navigate("/register");
+    } catch(err) {
+      navigate("/register"); // Simply navigate to register on any error
       console.log(err);
     }
   };
+
   useEffect(() => {
-  fetchUser();
+    fetchUser();
   }, []);
   
   return (
@@ -33,4 +33,4 @@ const Profile = () => {
   )
 }
 
-export default Profile
+export default Profile;

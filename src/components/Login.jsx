@@ -29,7 +29,7 @@ const Login = ({ onSwitchToRegister }) => {
 
       if (response.data) {
         dispatch(addUser(response.data.user));
-        navigate("/profile");
+        navigate("/feed");
       }
     } catch (err) {
       setError("Login failed. Please check your credentials.");
