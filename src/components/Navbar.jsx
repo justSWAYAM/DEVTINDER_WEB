@@ -1,4 +1,4 @@
-import { Flame } from 'lucide-react';
+import { Flame, Users2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { removeUser } from '../utils/userSlice';
@@ -33,7 +33,16 @@ const Navbar = () => {
         </div>
       </div>
       
-      <div className="flex-none mr-2">
+      <div className="flex-none flex items-center gap-4">
+        {/* Connections Button */}
+        <button
+          onClick={() => navigate('/connections')}
+          className="btn btn-ghost btn-circle border border-rose-500/20 hover:border-rose-500/40 transition-colors"
+        >
+          <Users2 className="w-6 h-6 text-rose-400" />
+        </button>
+
+        {/* Existing Profile Dropdown */}
         <div className="dropdown dropdown-end">
           <div 
             tabIndex={0} 

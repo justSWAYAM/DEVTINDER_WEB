@@ -5,6 +5,7 @@ import { Provider } from "react-redux"
 import appStore from "./utils/appStore"
 import Profile from "./pages/Profile"
 import Feed from "./pages/Feed";
+import Connections from "./pages/Connections";
 function App() {
   return (
     <div className="font-Montserrat">
@@ -15,6 +16,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element = {<Profile/>}/>
           <Route path="/feed" element = {<Feed/>}/>
+          <Route path="/connections" element = {<Connections/>}/>
         </Routes>
       </BrowserRouter>
       </Provider>
