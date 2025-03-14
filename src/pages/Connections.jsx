@@ -49,19 +49,24 @@ const Connections = () => {
 
   return (
     <div className="min-h-screen relative">
+      {/* Background image and overlay */}
       <img
         src="/feed.jpeg"
         alt="Background"
         className="absolute w-full h-full object-cover"
       />
-      {/* Darker overlay for better readability */}
       <div className="absolute inset-0 bg-black/80" />
       
+      {/* Main content - reduce z-index */}
       <div className="relative z-10">
-        <div className="px-4 py-3 z-30">
-          <Navbar />
+        {/* Navbar container with higher z-index */}
+        <div className="sticky top-0 z-[100]">
+          <div className="px-4 py-3">
+            <Navbar />
+          </div>
         </div>
 
+        {/* Rest of the content */}
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Main Connections Section */}

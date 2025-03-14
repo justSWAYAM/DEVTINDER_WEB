@@ -20,7 +20,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="navbar bg-slate-900/95 backdrop-blur-sm border border-white/10 rounded-2xl shadow-lg px-6">
+    <div className="navbar bg-slate-900/95 backdrop-blur-sm border border-white/10 rounded-2xl shadow-lg px-4 max-w-5xl mx-auto">
       <div className="flex-1">
         <div 
           className="flex items-center space-x-2 cursor-pointer" 

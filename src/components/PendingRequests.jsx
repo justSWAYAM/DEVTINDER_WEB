@@ -34,6 +34,7 @@ const PendingRequests = () => {
       console.error("Error handling request:", err);
     }
   };
+
   // Initial fetch
   useEffect(() => {
     fetchPendingRequests();
@@ -55,10 +56,10 @@ const PendingRequests = () => {
         </div>
       ) : (
         requests.map((request) => {
-          const { _id, firstName, lastName } = request.fromUserId;
+          const { firstName, lastName } = request.fromUserId;
           return (
             <div 
-              key={_id}
+              key={request._id}
               className="bg-slate-900/90 backdrop-blur-sm border border-white/10 rounded-xl p-4 hover:border-rose-500/20 transition-colors"
             >
               <div className="flex items-center gap-4">
@@ -83,14 +84,14 @@ const PendingRequests = () => {
 
                 <div className="flex gap-2">
                   <button 
-                    onClick={() => handleRequest(_id, 'accepted')}
+                    onClick={() => handleRequest(request._id, 'accepted')}
                     className="p-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 border border-green-500/30 transition-colors group"
                     title="Accept Request"
                   >
                     <Check className="w-4 h-4 text-green-400 group-hover:scale-110 transition-transform" />
                   </button>
                   <button 
-                    onClick={() => handleRequest(_id, 'rejected')}
+                    onClick={() => handleRequest(request._id, 'rejected')}
                     className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-colors group"
                     title="Reject Request"
                   >
