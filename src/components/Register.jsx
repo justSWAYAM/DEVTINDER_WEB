@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { Upload, X, Flame } from 'lucide-react';
 import axios from "axios";
 import Modal from "./Modal"; // Add this import
+import { addUser } from "../utils/userSlice"; // Add this import
+const BASE_URL = "http://localhost:3000";
 
 const validateEmail = (email) => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -15,6 +18,7 @@ const validatePassword = (password) => {
 
 const Register = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch(); // Add this
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -34,6 +38,27 @@ const Register = () => {
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handlePhotoUrlChange = (e) => {
+    const url = e.target.value;
+    setFormData({ ...formData, photoUrl: url });
+    
+    // Update preview if URL is valid
+    if (url) {
+      const img = new Image();
+      img.onload = () => {
+        setPreviewImage(url);
+        setError(""); // Clear any previous errors
+      };
+      img.onerror = () => {
+        setPreviewImage(null);
+        setError("Invalid image URL");
+      };
+      img.src = url;
+    } else {
+      setPreviewImage(null);
+    }
   };
 
   const handleSkillAdd = (e) => {
@@ -65,29 +90,7 @@ const Register = () => {
     });
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        setError("Please upload an image file");
-        return;
-      }
   
-      // Check file size (5MB max)
-      if (file.size > 5 * 1024 * 1024) {
-        setError("Image must be less than 5MB");
-        return;
-      }
-  
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-        setFormData({ ...formData, photoUrl: reader.result });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -130,18 +133,25 @@ const Register = () => {
       return;
     }
   
-    // File size check for profile picture
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (formData.photoUrl !== "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png") {
-      const base64Size = atob(formData.photoUrl.split(',')[1]).length;
-      if (base64Size > maxSize) {
-        setError("Profile picture must be less than 5MB");
+    // Replace the problematic base64 check with simple URL validation
+    if (formData.photoUrl && formData.photoUrl !== "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png") {
+      try {
+        const response = await fetch(formData.photoUrl);
+        const contentType = response.headers.get('content-type');
+        if (!contentType.startsWith('image/')) {
+          setError("Please provide a valid image URL");
+          return;
+        }
+      } catch (err) {
+        setError("Please provide a valid image URL");
+        console.log(err);
         return;
       }
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/signup", {
+      // First, attempt to register
+      const registerResponse = await axios.post(`${BASE_URL}/signup`, {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         emailId: formData.emailId.trim(),
@@ -153,8 +163,22 @@ const Register = () => {
         skills: formData.skills,
       });
 
-      if (response.data) {
-        navigate('/'); // Navigate to home after successful registration
+      if (registerResponse.data) {
+        // If registration successful, attempt to login
+        try {
+          const loginResponse = await axios.post(`${BASE_URL}/login`, {
+            emailId: formData.emailId,
+            password: formData.password
+          }, { withCredentials: true });
+
+          if (loginResponse.data) {
+            dispatch(addUser(loginResponse.data.user));
+            navigate('/feed');
+          }
+        } catch (loginErr) {
+          console.error("Auto-login failed:", loginErr);
+          navigate('/'); // Fallback to landing page if auto-login fails
+        }
       }
     } catch (err) {
       if (err.response?.status === 409) {
@@ -370,26 +394,32 @@ const Register = () => {
               </div>
 
               {/* Right side - Photo Upload */}
-              <div className="w-full lg:w-72 flex flex-col items-center justify-center">
-                <div className="w-48 h-48 lg:w-64 lg:h-64 rounded-full overflow-hidden mb-4 bg-white/10 backdrop-blur-sm border border-white/20 relative group">
-                  <img
-                    src={previewImage || formData.photoUrl}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Upload className="w-8 h-8 text-white" />
+              <div className="space-y-4">
+                <input
+                  type="url"
+                  name="photoUrl"
+                  placeholder="Profile Photo URL"
+                  value={formData.photoUrl}
+                  onChange={handlePhotoUrlChange}
+                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2.5 text-rose-50 focus:outline-none focus:border-rose-500 transition-colors"
+                />
+                
+                {/* Remove the file input from the right side and update the preview section */}
+                <div className="w-full lg:w-72 flex flex-col items-center justify-center">
+                  <div className="w-48 h-48 lg:w-64 lg:h-64 rounded-full overflow-hidden mb-4 bg-white/10 backdrop-blur-sm border border-white/20 relative group">
+                    <img
+                      src={previewImage || formData.photoUrl}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Upload className="w-8 h-8 text-white" />
+                    </div>
                   </div>
-                  <input
-                    type="file"
-                    onChange={handleImageChange}
-                    accept="image/*"
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                  />
+                  <p className="text-rose-200 text-sm text-center mb-4 lg:mb-0">
+                    Enter a valid image URL above to preview
+                  </p>
                 </div>
-                <p className="text-rose-200 text-sm text-center mb-4 lg:mb-0">
-                  Click to upload your profile picture
-                </p>
               </div>
             </div>
           </div>
