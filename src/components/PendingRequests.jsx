@@ -4,6 +4,7 @@ import axios from 'axios';
 import { BASE_URL } from '../utils/constants';
 import { Check, X, User2 } from 'lucide-react';
 import { addRequest, removeRequest } from '../utils/requestSlice';
+import { addOneConnection } from '../utils/connectionsSlice'; // Add this import
 
 const PendingRequests = () => {
   const dispatch = useDispatch();
@@ -26,9 +27,20 @@ const PendingRequests = () => {
 
   const handleRequest = async (requestId, action) => {
     try {
-      await axios.post(`${BASE_URL}/request/review/${action}/${requestId}`, {}, {
+      const response = await axios.post(`${BASE_URL}/request/review/${action}/${requestId}`, {}, {
         withCredentials: true
       });
+      
+      // If request was accepted, add to connections
+      if (action === 'accepted' && response.data.success) {
+        const request = requests.find(req => req._id === requestId);
+        if (request) {
+          // Add the user who sent the request to connections
+          dispatch(addOneConnection(request.fromUserId));
+        }
+      }
+      
+      // Remove from pending requests
       dispatch(removeRequest(requestId));
     } catch (err) {
       console.error("Error handling request:", err);

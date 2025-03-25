@@ -5,11 +5,19 @@ const connectionsSlice = createSlice({
     initialState: null,
     reducers: {
         addConnections: (state, action) => action.payload,
-        removeConnections: (state, action) => null,
         removeOneConnection: (state, action) => 
-            state.filter(conn => conn._id !== action.payload)
+            state ? state.filter(conn => conn._id !== action.payload) : [],
+        addOneConnection: (state, action) => {
+            if (!state) return [action.payload];
+            // Check if connection already exists
+            const exists = state.some(conn => conn._id === action.payload._id);
+            if (!exists) {
+                return [...state, action.payload];
+            }
+            return state;
+        }
     },
 });
 
-export const { addConnections, removeConnections, removeOneConnection } = connectionsSlice.actions;
+export const { addConnections, removeOneConnection, addOneConnection } = connectionsSlice.actions;
 export default connectionsSlice.reducer;

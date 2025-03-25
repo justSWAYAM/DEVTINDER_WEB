@@ -12,15 +12,13 @@ const Connections = () => {
   const connections = useSelector(state => state.connections);
 
   const fetchConnections = async () => {
-    if (!connections) {
-      try {
-        const response = await axios.get(`${BASE_URL}/user/connection`, {
-          withCredentials: true
-        });
-        dispatch(addConnections(response.data.data || []));
-      } catch (err) {
-        console.error(err);
-      }
+    try {
+      const response = await axios.get(`${BASE_URL}/user/connection`, {
+        withCredentials: true
+      });
+      dispatch(addConnections(response.data.data || []));
+    } catch (err) {
+      console.error("Error fetching connections:", err);
     }
   };
 
