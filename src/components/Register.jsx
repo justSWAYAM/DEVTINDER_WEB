@@ -5,7 +5,7 @@ import { Upload, X, Flame } from 'lucide-react';
 import axios from "axios";
 import Modal from "./Modal"; // Add this import
 import { addUser } from "../utils/userSlice"; // Add this import
-const BASE_URL = "http://localhost:3000";
+import BASE_URL from "../utils/constants"; // Adjust the import path as necessary
 
 const validateEmail = (email) => {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
