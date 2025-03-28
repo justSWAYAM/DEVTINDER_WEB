@@ -156,7 +156,7 @@ const Register = () => {
         lastName: formData.lastName.trim(),
         emailId: formData.emailId.trim(),
         password: formData.password,
-        age: parseInt(formData.age),
+        age: String(parseInt(formData.age, 10)),
         gender: formData.gender,
         photoUrl: formData.photoUrl,
         about: formData.about.trim(),
